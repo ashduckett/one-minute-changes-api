@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\User;
+use App\Http\Controllers\ApiController;
 
-class UserController extends Controller
+class UserController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         // Grab all of the users and return them
         $users = User::all();
-        return response()->json(['data' => $users], 200);
+        return $this->showAll($users);
     }
 
     /**
@@ -43,8 +43,7 @@ class UserController extends Controller
         $data['admin'] = User::REGULAR_USER;
 
         $user = User::create($data);
-
-        return response()->json(['data' => $user], 201);
+        return $this->showOne($user, 201);
     }
 
     /**
@@ -56,7 +55,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
-        return response()->json(['data' => $user], 200);
+        return $this->showOne($user);
     }
 
     /**
@@ -94,18 +93,18 @@ class UserController extends Controller
 
         if ($request->has('admin')) {
             if (!$user->isVerified()) {
-                return response()->json(['error' => 'Only verified user can modify the admin field', 'code' => 409], 409);
+                return $this->errorResponse('Only verified user can modify the admin field', 409);
             }
             $user->admin = $request->admin;
         }
 
         if (!$user->isDirty()) {
-            return response()->json(['error' => 'You have not made any changes.', 'code' => 422], 422);
+            return $this->errorResponse('You have not made any changes.', 422);
         }
 
         $user->save();
 
-        return response()->json(['data' => $user], 200);
+        return $this->showOne($user);
     }
 
     /**
@@ -118,7 +117,6 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $user->delete();
-        
-        return response()->json(['data' => $user], 200);
+        return $this->showOne($user);
     }
 }
