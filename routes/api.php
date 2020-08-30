@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 
 // Routes for managing users
 Route::resource('users', 'User\UserController')->except(['create', 'edit']);
+Route::name('verify')->get('users/verify/{token}', 'User\UserController@verify');
