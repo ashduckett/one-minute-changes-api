@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Routes for managing users
+Route::name('me')->get('users/me', 'User\UserController@me');
 Route::resource('users', 'User\UserController')->except(['create', 'edit']);
 Route::name('verify')->get('users/verify/{token}', 'User\UserController@verify');
 Route::name('resend')->get('users/{user}/resend', 'User\UserController@resend');
+
+
+// Ensure this route uses api group middleware
+Route::post('oauth/token', '\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken');

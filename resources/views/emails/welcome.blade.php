@@ -1,5 +1,5 @@
 @component('mail::message')
-# Hello {{ $user->name }}
+# Hello {{ $user->firstname }}
 
 Thank you for creating an account. Please verify your email using this button:
 

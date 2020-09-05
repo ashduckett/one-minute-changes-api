@@ -9,7 +9,15 @@ use App\Mail\UserCreated;
 
 class UserController extends ApiController
 {
+    public function __construct() {
+        $this->middleware('client.credentials')->only(['store', 'resend', 'index']);
+        $this->middleware('auth:api')->only(['me']);
+    }
 
+    public function me(Request $request) {
+        $user = $request->user();
+        return $this->showOne($user);
+    }
 
     public function verify($token) {
         $user = User::where('verification_token', $token)->firstOrFail();
@@ -56,7 +64,8 @@ class UserController extends ApiController
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'required',
+            'firstname' => 'required',
+            'lastname' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed'
         ];

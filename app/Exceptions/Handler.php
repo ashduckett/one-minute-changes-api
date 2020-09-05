@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -59,8 +60,14 @@ class Handler extends ExceptionHandler
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {   
+        // If this request came from the frontend take them to the login screen, otherwise return JSON.
+        if ($this->isFrontEnd($request)) {
+            return redirect()->guest('login');
+        }
+        
         return $this->errorResponse('Unauthenticated', 401);
     }
+
 
     /**
      * Render an exception into an HTTP response.
@@ -106,6 +113,11 @@ class Handler extends ExceptionHandler
             }
         }
 
+        if ($exception instanceof TokenMismatchException) {
+            return redirect()->back()->withInput($request->input());
+        }
+
+
         if (config('app.debug')) {
             return parent::render($request, $exception);
         }
@@ -113,8 +125,22 @@ class Handler extends ExceptionHandler
         return $this->errorResponse('Unexpected Exception. Try again later.', 500);
     }
 
-    protected function convertValidationExceptionToResponse(ValidationException $e, $request) {
+    protected function convertValidationExceptionToResponse(ValidationException $e, $request)
+    {
         $errors = $e->validator->errors()->getMessages();
+        
+        if ($this->isFrontEnd($request)) {
+            return $request->ajax() ? response()->json($errors, 422) : redirect()
+                ->back()
+                ->withInput($request->input())
+                ->withErrors($errors);
+        }
+     
         return $this->errorResponse($errors, 422);
+    }
+
+
+    private function isFrontEnd($request) {
+        return $request->acceptsHtml() && collect($request->route()->middleware())->contains('web');
     }
 }
