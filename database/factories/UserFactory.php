@@ -3,6 +3,8 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\User;
+use App\Chord;
+use App\ChordChange;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 
@@ -28,5 +30,19 @@ $factory->define(User::class, function (Faker $faker) {
         'verified' => $verified = $faker->randomElement([User::VERIFIED_USER, User::UNVERIFIED_USER]),
         'verification_token' => $verified == User::VERIFIED_USER ? null : User::generateVerificationCode(),
         'admin' => $faker->randomElement([User::ADMIN_USER, User::REGULAR_USER])
+    ];
+});
+
+$factory->define(Chord::class, function(Faker $faker, $attibutes) {
+    return [
+        'name' => $attibutes['name']
+    ];
+});
+
+$factory->define(ChordChange::class, function(Faker $faker, $attibutes) {
+    return [
+        'position' => $attibutes['position'],
+        'to_id' => $attibutes['to_id'],
+        'from_id' => $attibutes['from_id']
     ];
 });

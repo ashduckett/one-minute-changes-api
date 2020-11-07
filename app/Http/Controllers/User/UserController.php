@@ -10,7 +10,7 @@ use App\Mail\UserCreated;
 class UserController extends ApiController
 {
     public function __construct() {
-        $this->middleware('client.credentials')->only(['store', 'resend', 'index']);
+        // $this->middleware('client.credentials')->only(['store', 'resend', 'index']);
         $this->middleware('auth:api')->only(['me']);
     }
 
