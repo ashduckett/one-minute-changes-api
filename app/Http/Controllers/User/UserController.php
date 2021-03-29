@@ -11,6 +11,7 @@ class UserController extends ApiController
 {
     public function __construct() {
         // $this->middleware('client.credentials')->only(['store', 'resend', 'index']);
+        $this->middleware('client.credentials')->only(['store']);
         $this->middleware('auth:api')->only(['me']);
     }
 
@@ -36,7 +37,6 @@ class UserController extends ApiController
         retry(5, function() use ($user) {
             Mail::to($user)->send(new UserCreated($user));
         }, 100);
-
 
         return $this->showMessage('The verification email has been resent');
     }
